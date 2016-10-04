@@ -9,18 +9,17 @@ $.extend(String.prototype, {
      * 参数：    args：参数
      * 返回值：  无
      */
-    format: function (args) {
+    format: function(args) {
         var result = this;
         if (arguments.length > 0) {
-            if (arguments.length == 1 && typeof (args) == "object") {
+            if (arguments.length == 1 && typeof(args) == "object") {
                 for (var key in args) {
                     if (args[key] != undefined) {
                         var reg = new RegExp("({" + key + "})", "g");
                         result = result.replace(reg, args[key]);
                     }
                 }
-            }
-            else {
+            } else {
                 for (var i = 0; i < arguments.length; i++) {
                     if (arguments[i] != undefined) {
                         //var reg = new RegExp("({[" + i + "]})", "g");//这个在索引大于9时会有问题，谢谢何以笙箫的指出
@@ -42,7 +41,7 @@ $.extend(String.prototype, {
  @github: http://aui.github.com/fiterMore
  @License：LGPL
  */
-(function ($) {
+(function($) {
     $.fn.extend({
         /*
          * 功能：    互联网风格筛选条件插件
@@ -56,7 +55,20 @@ $.extend(String.prototype, {
                              {
                                  "id": "xx",
                                  "isMultiple": false, //是否多选
-                                 "type": "datetime",   //存在自定义日期区间时需设定  值可为 datetime(带时分秒) | date
+                                 "type": "date", //自定义类型:date（依赖bootstrao-datepicker,需提前引入相关库）,number,custom; by default:custom
+                                 "typeMoreConf":{ 
+                                    //for date默认配置：
+                                        //format: 'yyyy-mm-dd',
+                                        //minViewMode: 0,
+                                        //maxViewMode: 2,
+                                        //language: "zh-CN",
+                                        //calendarWeeks: true,
+                                        //autoclose: true,
+                                        //todayHighlight: true,
+                                        //toggleActive: true
+                                    //for number默认配置
+                                    
+                                 }, //optional,对应类型更多配置，例如日期类型：type:date,日期依赖bootstrao-datepicker，在此配置次控件的扩展设置
                                  "title": "时间范围",
                                  "valueField":"value", //选项json 键字段名称 默认为value
                                  "textField":"text",   //选项json 值字段名称 默认为text
@@ -66,7 +78,9 @@ $.extend(String.prototype, {
                                  //自定义
                                  "custom": {
                                      "isRange": true, //是否区间 默认为true
-                                     'event': function (start, end) { }
+                                     "inputwidth": '100px', //设置自定义文本框的宽度，默认是100px
+                                     "buildFilter": function ($grouped,$start, $end) { },
+                                     "event": function (start, end) { }
                                  }
                              }]
                          }
@@ -74,7 +88,7 @@ $.extend(String.prototype, {
          * 创建人：  焰尾迭
          * 创建时间：2015-12-21
          */
-        fiterMore: function (options) {
+        fiterMore: function(options) {
             //展开收缩有回调事件时，默认最大展示条数
             var MAX_SHOW_COUNT = 10;
             //id前缀
@@ -86,15 +100,13 @@ $.extend(String.prototype, {
             var defaults = {
                 //展开更多条件回调事件
                 //参数：state  true表示展开  false 收缩
-                "expandEvent": function (state) {
-                },
+                "expandEvent": function(state) {},
                 //默认展开条件数
                 "expandRow": 2,
                 //查询框
                 "searchBoxs": [],
                 //查询事件
-                "search": function (paramList) {
-                },
+                "search": function(paramList) {},
                 //参数收集时返回值的Key
                 "paramkey": "ValueList",
                 //参数收集时自定义条件返回值的Key
@@ -118,9 +130,9 @@ $.extend(String.prototype, {
             var _expandHeight = settings.expandRow * 40 - (settings.expandRow - 1) * 1;
             searchCtl.css({ 'height': _expandHeight });
 
-            $(settings.searchBoxs).each(function (i, item) {
+            $(settings.searchBoxs).each(function(i, item) {
                 //1.id处理
-                if (item.id && typeof (item.id) == "string") {
+                if (item.id && typeof(item.id) == "string") {
                     item.srcID = item.id;
                     item.id = "{0}{1}".format(ID_STUFF, item.id);
                 } else {
@@ -173,7 +185,7 @@ $.extend(String.prototype, {
             ////////////////////////////////////////事件绑定////////////////////////////////////////
 
             //给选项添加了自定义事件 select 对外调用
-            searchCtl.on("click select", ".filter_option span", function (e) {
+            searchCtl.on("click select", ".filter_option span", function(e) {
                 var item = _getItem(this);
                 var index = $(this).attr("data-id");
                 //当前操作状态 select:当前元素选中 cancel:当前元素取消选中 cancelall:全部  selectremove:当前元素选中 其它元素移除选中 单选
@@ -221,23 +233,23 @@ $.extend(String.prototype, {
                 _clearCustomValue(item);
 
                 //选择项触发回调事件
-                if (typeof (item.onSelect) == "function" && e.type == "click") {
+                if (typeof(item.onSelect) == "function" && e.type == "click") {
                     item.onSelect(item.data[index], state);
                 }
 
                 //触发查询事件
-                if (typeof (settings.search) == "function" && settings.searchOnSelect) {
+                if (typeof(settings.search) == "function" && settings.searchOnSelect) {
                     settings.search(_getParamList());
                 }
             })
 
             //收缩展开监听事件
-            searchCtl.on("click", ".r", function (e, data) {
+            searchCtl.on("click", ".r", function(e, data) {
                 _itemExpand(e, this, data);
             });
 
             //更多条件展开收缩
-            filterBtn.find('span').on("click", function () {
+            filterBtn.find('span').on("click", function() {
                 var state = true;
                 if ($(this).hasClass('expand')) {
                     $(this).text('收缩条件').removeClass('expand');
@@ -247,13 +259,13 @@ $.extend(String.prototype, {
                     searchCtl.css({ 'height': _expandHeight });
                     state = false;
                 }
-                if (typeof (settings.expandEvent) == "function") {
+                if (typeof(settings.expandEvent) == "function") {
                     settings.expandEvent(state);
                 }
             });
 
             //自定义条件确定按钮点击事件
-            searchCtl.on("click", '.filter_custom .btn_filter_sure', function () {
+            searchCtl.on("click", '.filter_custom .btn_filter_sure', function() {
                 var index = $(this).attr("data-id");
                 var item = settings.searchBoxs[index];
 
@@ -265,7 +277,7 @@ $.extend(String.prototype, {
                 }
 
                 //自定义条件搜索按钮点击触发回调事件,用于用于校验输入数据是否正确
-                if (typeof (item.custom.event) == "function") {
+                if (typeof(item.custom.event) == "function") {
                     if (!item.custom.event(start, end)) {
                         return;
                     }
@@ -282,7 +294,7 @@ $.extend(String.prototype, {
                 }
 
                 //触发查询事件
-                if (typeof (settings.search) == "function") {
+                if (typeof(settings.search) == "function") {
                     settings.search(_getParamList());
                 }
             });
@@ -293,28 +305,33 @@ $.extend(String.prototype, {
              * 参数：    当前项元素
              * 返回值：  当前项数据
              * 创建人：  杜冬军
+             * 最后修改人：  HARRY HAN
              * 创建时间：2015-12-21
              */
             function _createCtrl() {
                 var strHTML = "";
 
-                $(settings.searchBoxs).each(function (i, item) {
+                $(settings.searchBoxs).each(function(i, item) {
                     strHTML += ('<div class="searchbox-item" {0} data-id="{1}" id="{2}">'.format((i + 1) == settings.searchBoxs.length ? 'style="border: 0"' : "", i, item.id) +
-                    '<div class="l" id="{1}_l">{0}<i></i></div>'.format(item.title, item.id) +
-                    '<div class="c" id="{0}_c">'.format(item.id) +
-                    '<div class="control-type">({0})</div><div class="filter_option" style="padding-right:{1}px;">'.format(item.isMultiple ? "多选" : "单选", _getCustomDivWidth(item) + 20) + _createOptions(item) +
-                    '</div>' + _createCustomFilter(i, item) +
-                    '</div>' +
-                    '<a href="javascript:;" class="r" id="{0}_r"><span class="text">展开</span></a>'.format(item.id) +
-                    '</div>');
+                        '<div class="l" id="{1}_l">{0}<i></i></div>'.format(item.title, item.id) +
+                        '<div class="c" id="{0}_c">'.format(item.id) +
+                        '<div class="control-type">({0})</div><div class="filter_option" style="padding-right:{1}px;">'.format(item.isMultiple ? "多选" : "单选", _getCustomDivWidth(item) + 20) + _createOptions(item) +
+                        '</div>' + _createCustomFilter(i, item) +
+                        '</div>' +
+                        '<a href="javascript:;" class="r" id="{0}_r"><span class="text">展开</span></a>'.format(item.id) +
+                        '</div>');
                 });
 
                 searchCtl.html(strHTML);
-                $(".searchbox .searchbox-item").each(function (i) {
+                $(".searchbox .searchbox-item").each(function(i) {
                     var height = $(this).find(".filter_option").outerHeight();
                     if (height <= 30) {
                         $(this).find(".r").remove();
                     }
+                });
+                //初始化自定义控件
+                $(settings.searchBoxs).each(function(i, item) {
+                    _buildCustomFilter(i, item);
                 });
                 //如果默认展开行数小于总条数
                 if (settings.expandRow < settings.searchBoxs.length) {
@@ -367,7 +384,7 @@ $.extend(String.prototype, {
                 }
 
                 //创建其余项,绑定默认选中值
-                $(item.data).each(function (i, detail) {
+                $(item.data).each(function(i, detail) {
                     //判断当前项是否为默认选中项
                     if (isHasExpandCallBack && (1 + i) > max) {
                         return;
@@ -381,25 +398,60 @@ $.extend(String.prototype, {
             //创建自定义查询条件选项
             function _createCustomFilter(i, item) {
                 if (item.custom) {
-                    var inputwidth = "70px";
-                    if (item.type == "date") {
-                        inputwidth = "100px";
-                        //为年月日类型
-                    } else if (item.type == "datetime") {
-                        //为年月日时分秒类型
-                        inputwidth = "160px";
-                    }
+                    var inputwidth = item.custom.inputwidth ? item.custom.inputwidth : "100px";
                     var strHTML = '<div class="filter_custom" style="width:{0}px;"><span>自定义</span>'.format(_getCustomDivWidth(item));
-                    strHTML += '<span><input type="text" id="{0}_c_custom_start" style="width:{1};"></span>'.format(item.id, inputwidth);
+                    strHTML += '<span><div id="{0}_c_custom">'.format(item.id);
+                    strHTML += '<span><input class="form-control" type="text" id="{0}_c_custom_start" name="start" style="width:{1};"></span>'.format(item.id, inputwidth);
                     if (item.custom.isRange) {
                         //范围
                         strHTML += '<span>—</span>' +
-                            '<span><input type="text" id="{0}_c_custom_end" {1}></span>'.format(item.id, inputwidth ? "style='width:{0}'".format(inputwidth) : "");
+                            '<span><input class="form-control" type="text" id="{0}_c_custom_end" name="end" {1}></span>'.format(item.id, inputwidth ? "style='width:{0}'".format(inputwidth) : "");
                     }
+                    strHTML += '</div></span>';
                     strHTML += '<span class="btn_filter_sure" data-id="{0}">确定</span></div>'.format(i);
                     return strHTML;
                 } else {
                     return "";
+                }
+            }
+
+            //分类型自定义控件构建
+            function _buildCustomFilter(i, item) {
+                //如果存在自定义构建控件，则调用自定义构建方法
+                if (typeof(item.custom.buildFilter) == "function") {
+                    item.custom.buildFilter($('#{0}_c_custom'.format(item.id)), '#{0}_c_custom_start'.format(item.id), '#{0}_c_custom_end'.format(item.id));
+                } else {
+                    var itemType = item.type ? item.type : 'number';
+                    switch (itemType) {
+                        case "date":
+                            _dateFilterBuild(i, item);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            //构建日期类型自定义控件：依赖于bootstrap-daterangepicker控件
+            function _dateFilterBuild(i, item) {
+                //定义默认配置
+                var defaultConf = {
+                    format: 'yyyy-mm-dd',
+                    minViewMode: 0,
+                    maxViewMode: 2,
+                    language: "zh-CN",
+                    calendarWeeks: true,
+                    autoclose: true,
+                    todayHighlight: true,
+                    toggleActive: true
+                };
+                //如果有自定义配置，则覆盖合并到默认配置里
+                item.typeMoreConf ? $.extend(defaultConf, item.typeMoreConf) : '';
+                //判断isrange
+                if (item.custom.isRange) {
+                    $('#{0}_c_custom'.format(item.id)).addClass("input-daterange").datepicker(defaultConf);
+                } else {
+                    $('#{0}_c_custom_start'.format(item.id)).datepicker(defaultConf);
                 }
             }
 
@@ -430,7 +482,7 @@ $.extend(String.prototype, {
             function _getParamList() {
                 var paramList = [];
                 var value = null;
-                $(settings.searchBoxs).each(function (i, item) {
+                $(settings.searchBoxs).each(function(i, item) {
                     value = {};
                     if (item.customSelectd.length > 0) {
                         //自定义
@@ -455,7 +507,7 @@ $.extend(String.prototype, {
              * 创建时间：2015-12-21
              */
             function _isHasExpandEvent(item) {
-                return item.expand && (typeof (item.expand.event) == "function");
+                return item.expand && (typeof(item.expand.event) == "function");
             }
 
             /*
@@ -488,7 +540,7 @@ $.extend(String.prototype, {
                 if (filterBtn.find('span').text() == "展开条件") {
                     var expandItemNum = 0;
                     var expandheight = 0;
-                    $(".searchbox-item").each(function (i, item) {
+                    $(".searchbox-item").each(function(i, item) {
                         if ($(item).find(".text").text() == "收缩") {
                             expandItemNum++;
                             expandheight += $(item).find(".c").height();
@@ -531,7 +583,7 @@ $.extend(String.prototype, {
                  */
                 function _getExpandState(obj) {
                     var objText = $(obj).find(".text");
-                    if (objText.text()=='展开') {
+                    if (objText.text() == '展开') {
                         return "expand";
                     } else {
                         return "collaspe";
@@ -585,14 +637,15 @@ $.extend(String.prototype, {
              */
             function _setSearchValue(arrOptionValue) {
                 if ($.isArray(arrOptionValue)) {
-                    var jsonMapper = {}, itemSet = null;
+                    var jsonMapper = {},
+                        itemSet = null;
                     for (var i = 0, length = arrOptionValue.length; i < length; i++) {
                         itemSet = arrOptionValue[i];
                         jsonMapper[itemSet.id] = itemSet;
                     }
                     var itemSpans;
 
-                    $(settings.searchBoxs).each(function (i, item) {
+                    $(settings.searchBoxs).each(function(i, item) {
                         itemSet = jsonMapper[item.srcID];
                         //所有选项
                         itemSpans = $("#" + item.id).find(".filter_option span");
@@ -613,7 +666,7 @@ $.extend(String.prototype, {
                                 for (var i = 0; i < valueList.length; i++) {
                                     itemSpans.filter("[data-value='{0}']".format(valueList[i])).addClass("selected");
                                     item.selected.push(valueList[i]);
-                                    if(!item.isMultiple){
+                                    if (!item.isMultiple) {
                                         break;
                                     }
                                 }
@@ -646,7 +699,7 @@ $.extend(String.prototype, {
             }
             ////////////////////////////////////////私有方法////////////////////////////////////////
 
-            return searchCtl.each(function () {
+            return searchCtl.each(function() {
                 this.getParamList = _getParamList;
                 this.setValue = _setSearchValue;
                 this.isFiterMore = true;
@@ -659,7 +712,7 @@ $.extend(String.prototype, {
          * 创建人：  杜冬军
          * 创建时间：2015-12-24
          */
-        getParamList: function () {
+        getParamList: function() {
             var that = this[0];
             if (that.isFiterMore) {
                 return that.getParamList();
@@ -672,7 +725,7 @@ $.extend(String.prototype, {
          * 创建人：  杜冬军
          * 创建时间：2016-09-08
          */
-        searchFunctionCall: function (options) {
+        searchFunctionCall: function(options) {
             if ($.isPlainObject(options)) {
                 var that = this[0];
                 if (that.isFiterMore) {

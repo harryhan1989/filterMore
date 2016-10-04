@@ -5,23 +5,34 @@
 
 //压缩css
 gulp.task('minifycss', function() {
-    return gulp.src('src/css/*.css')      //压缩的文件
-        .pipe(rename({suffix: '.min'}))   //rename压缩后的文件名
-        .pipe(minifycss())  //执行压缩
-        .pipe(gulp.dest('dist/css'));   //输出文件夹
+    return gulp.src('src/css/*.css') //压缩的文件
+        .pipe(rename({ suffix: '.min' })) //rename压缩后的文件名
+        .pipe(minifycss()) //执行压缩
+        .pipe(gulp.dest('dist/css')) //输出文件夹
 });
 
 //压缩js
 gulp.task('minifyjs', function() {
     return gulp.src('src/filterMore.js')
-        .pipe(rename({suffix: '.min'}))   //rename压缩后的文件名
+        .pipe(rename({ suffix: '.min' })) //rename压缩后的文件名
         .pipe(uglify({
             preserveComments: 'license' //保留license注释
-        }))    //压缩
-        .pipe(gulp.dest('dist'));  //输出
+        })) //压缩
+        .pipe(gulp.dest('dist')) //输出
 });
+
+//复制到demo目录下面
+gulp.task('copysrc', function() {
+    return gulp.src('src/**/*')
+        .pipe(gulp.dest('demo/filterMore/src'));
+});
+gulp.task('copymini', function() {
+    return gulp.src('dist/**/*')
+        .pipe(gulp.dest('demo/filterMore/dist'));
+});
+
 
 //默认命令，在cmd中输入gulp后，执行的就是这个命令
 gulp.task('default', function() {
-    gulp.start('minifycss', 'minifyjs');
+    gulp.start('minifycss', 'minifyjs', 'copysrc', 'copymini');
 });
