@@ -73,7 +73,7 @@ $.extend(String.prototype, {
                                  //自定义
                                  "custom": {
                                      "isRange": true, //是否区间 默认为true
-                                     "inputwidth": '100px', //设置自定义文本框的宽度，默认是100px
+                                     "inputWidth": 110, //设置自定义文本框的宽度，默认是110px
                                      "buildFilter": function ($grouped,$start, $end) { },
                                      "event": function (start, end) { }
                                  }
@@ -108,6 +108,11 @@ $.extend(String.prototype, {
                 "paramCustomkey": "CustomList",
                 //点击选项时是否立即进行查询 默认为true
                 "searchOnSelect": true
+            };
+
+            var defaultCustom = {
+                "isRange": true, //是否区间 默认为true
+                "inputWidth": 110, //设置自定义文本框的宽度，默认是110px 
             };
 
             //查询控件参数
@@ -159,6 +164,11 @@ $.extend(String.prototype, {
                     item.selected.push(item.defaults[j]);
                 }
                 item.customSelectd = [];
+
+                //覆盖custom 默认值
+                if (item.custom) {
+                    item.custom = $.extend(defaultCustom, item.custom);
+                }
 
                 //4.是否多选处理,默认为单选
                 if (item.isMultiple == undefined) {
@@ -336,25 +346,34 @@ $.extend(String.prototype, {
 
             //获取自定义查询框宽度
             function _getCustomDivWidth(item) {
+                // if (item.custom) {
+                //     if (item.custom.isRange == true) {
+                //         if (item.type == "date") {
+                //             return 320;
+                //             //为年月日类型
+                //         } else if (item.type == "datetime") {
+                //             return 440;
+                //         } else {
+                //             return 260;
+                //         }
+                //     } else {
+                //         if (item.type == "date") {
+                //             return 200;
+                //             //为年月日类型
+                //         } else if (item.type == "datetime") {
+                //             return 260;
+                //         } else {
+                //             return 170;
+                //         }
+                //     }
+                // } else {
+                //     return 0;
+                // }
                 if (item.custom) {
-                    if (item.custom.isRange == true) {
-                        if (item.type == "date") {
-                            return 320;
-                            //为年月日类型
-                        } else if (item.type == "datetime") {
-                            return 440;
-                        } else {
-                            return 260;
-                        }
+                    if (item.custom.isRange) {
+                        return item.custom.inputWidth * 2 + 100 + 20;
                     } else {
-                        if (item.type == "date") {
-                            return 200;
-                            //为年月日类型
-                        } else if (item.type == "datetime") {
-                            return 260;
-                        } else {
-                            return 170;
-                        }
+                        return item.custom.inputWidth + 100;
                     }
                 } else {
                     return 0;
@@ -393,14 +412,14 @@ $.extend(String.prototype, {
             //创建自定义查询条件选项
             function _createCustomFilter(i, item) {
                 if (item.custom) {
-                    var inputwidth = item.custom.inputwidth ? item.custom.inputwidth : "100px";
+                    var inputWidth = item.custom.inputWidth + 'px';
                     var strHTML = '<div class="filter_custom" style="width:{0}px;"><span>自定义</span>'.format(_getCustomDivWidth(item));
                     strHTML += '<span><div id="{0}_c_custom">'.format(item.id);
-                    strHTML += '<span><input class="form-control" type="text" id="{0}_c_custom_start" name="start" style="width:{1};"></span>'.format(item.id, inputwidth);
+                    strHTML += '<span><input class="form-control" type="text" id="{0}_c_custom_start" name="start" style="width:{1};"></span>'.format(item.id, inputWidth);
                     if (item.custom.isRange) {
                         //范围
                         strHTML += '<span>—</span>' +
-                            '<span><input class="form-control" type="text" id="{0}_c_custom_end" name="end" {1}></span>'.format(item.id, inputwidth ? "style='width:{0}'".format(inputwidth) : "");
+                            '<span><input class="form-control" type="text" id="{0}_c_custom_end" name="end" {1}></span>'.format(item.id, inputWidth ? "style='width:{0}'".format(inputWidth) : "");
                     }
                     strHTML += '</div></span>';
                     strHTML += '<span class="btn_filter_sure" data-id="{0}">确定</span></div>'.format(i);
@@ -412,17 +431,19 @@ $.extend(String.prototype, {
 
             //分类型自定义控件构建
             function _buildCustomFilter(i, item) {
-                //如果存在自定义构建控件，则调用自定义构建方法
-                if (typeof(item.custom.buildFilter) == "function") {
-                    item.custom.buildFilter($('#{0}_c_custom'.format(item.id)), '#{0}_c_custom_start'.format(item.id), '#{0}_c_custom_end'.format(item.id));
-                } else {
-                    var itemType = item.type ? item.type : 'number';
-                    switch (itemType) {
-                        case "date":
-                            _dateFilterBuild(i, item);
-                            break;
-                        default:
-                            break;
+                if (item.custom) {
+                    //如果存在自定义构建控件，则调用自定义构建方法
+                    if (typeof(item.custom.buildFilter) == "function") {
+                        item.custom.buildFilter($('#{0}_c_custom'.format(item.id)), '#{0}_c_custom_start'.format(item.id), '#{0}_c_custom_end'.format(item.id));
+                    } else {
+                        var itemType = item.type ? item.type : 'number';
+                        switch (itemType) {
+                            case "date":
+                                _dateFilterBuild(i, item);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }

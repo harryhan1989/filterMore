@@ -2,6 +2,8 @@
  * 功能：    拓展String类型方法，添加常用功能
  * 创建人：  焰尾迭
  * 创建时间：2015-11-18
+ * 最后修改人：  HARRY HAN
+ * 最后修改时间：  2016-10-04
  */
 $.extend(String.prototype, {
     /*
@@ -34,13 +36,6 @@ $.extend(String.prototype, {
     }
 });
 
-/*!
- @Name：fiterMore v1.0 互联网风格筛选条件插件
- @Author：焰尾迭
- @Site：http://yanwei.cnblogs.com
- @github: http://aui.github.com/fiterMore
- @License：LGPL
- */
 (function($) {
     $.fn.extend({
         /*
@@ -78,8 +73,9 @@ $.extend(String.prototype, {
                                  //自定义
                                  "custom": {
                                      "isRange": true, //是否区间 默认为true
-                                     "inputwidth": '100px' //设置自定义文本框的宽度，默认是100px
-                                     'event': function (start, end) { }
+                                     "inputWidth": 110, //设置自定义文本框的宽度，默认是110px
+                                     "buildFilter": function ($grouped,$start, $end) { },
+                                     "event": function (start, end) { }
                                  }
                              }]
                          }
@@ -114,6 +110,11 @@ $.extend(String.prototype, {
                 "searchOnSelect": true
             };
 
+            var defaultCustom = {
+                "isRange": true, //是否区间 默认为true
+                "inputWidth": 110, //设置自定义文本框的宽度，默认是110px 
+            };
+
             //查询控件参数
             var settings = $.extend(defaults, options);
 
@@ -139,7 +140,6 @@ $.extend(String.prototype, {
                     item.id = "{0}{1}".format(ID_STUFF, i);
                 }
 
-
                 //2.值域 文本域 绑定字段
                 if (item.valueField || item.textField) {
                     if (item.valueField && !item.textField) {
@@ -164,6 +164,11 @@ $.extend(String.prototype, {
                     item.selected.push(item.defaults[j]);
                 }
                 item.customSelectd = [];
+
+                //覆盖custom 默认值
+                if (item.custom) {
+                    item.custom = $.extend(defaultCustom, item.custom);
+                }
 
                 //4.是否多选处理,默认为单选
                 if (item.isMultiple == undefined) {
@@ -304,8 +309,9 @@ $.extend(String.prototype, {
              * 参数：    当前项元素
              * 返回值：  当前项数据
              * 创建人：  杜冬军
-             * 最后修改人：  HARRY HAN
              * 创建时间：2015-12-21
+             * 最后修改人：  HARRY HAN
+             * 最后修改时间：  2016-10-04
              */
             function _createCtrl() {
                 var strHTML = "";
@@ -340,25 +346,34 @@ $.extend(String.prototype, {
 
             //获取自定义查询框宽度
             function _getCustomDivWidth(item) {
+                // if (item.custom) {
+                //     if (item.custom.isRange == true) {
+                //         if (item.type == "date") {
+                //             return 320;
+                //             //为年月日类型
+                //         } else if (item.type == "datetime") {
+                //             return 440;
+                //         } else {
+                //             return 260;
+                //         }
+                //     } else {
+                //         if (item.type == "date") {
+                //             return 200;
+                //             //为年月日类型
+                //         } else if (item.type == "datetime") {
+                //             return 260;
+                //         } else {
+                //             return 170;
+                //         }
+                //     }
+                // } else {
+                //     return 0;
+                // }
                 if (item.custom) {
-                    if (item.custom.isRange == true) {
-                        if (item.type == "date") {
-                            return 320;
-                            //为年月日类型
-                        } else if (item.type == "datetime") {
-                            return 440;
-                        } else {
-                            return 260;
-                        }
+                    if (item.custom.isRange) {
+                        return item.custom.inputWidth * 2 + 100 + 20;
                     } else {
-                        if (item.type == "date") {
-                            return 200;
-                            //为年月日类型
-                        } else if (item.type == "datetime") {
-                            return 260;
-                        } else {
-                            return 170;
-                        }
+                        return item.custom.inputWidth + 100;
                     }
                 } else {
                     return 0;
@@ -397,14 +412,14 @@ $.extend(String.prototype, {
             //创建自定义查询条件选项
             function _createCustomFilter(i, item) {
                 if (item.custom) {
-                    var inputwidth = item.custom.inputwidth ? item.custom.inputwidth : "100px";
+                    var inputWidth = item.custom.inputWidth + 'px';
                     var strHTML = '<div class="filter_custom" style="width:{0}px;"><span>自定义</span>'.format(_getCustomDivWidth(item));
                     strHTML += '<span><div id="{0}_c_custom">'.format(item.id);
-                    strHTML += '<span><input class="form-control" type="text" id="{0}_c_custom_start" name="start" style="width:{1};"></span>'.format(item.id, inputwidth);
+                    strHTML += '<span><input class="form-control" type="text" id="{0}_c_custom_start" name="start" style="width:{1};"></span>'.format(item.id, inputWidth);
                     if (item.custom.isRange) {
                         //范围
                         strHTML += '<span>—</span>' +
-                            '<span><input class="form-control" type="text" id="{0}_c_custom_end" name="end" {1}></span>'.format(item.id, inputwidth ? "style='width:{0}'".format(inputwidth) : "");
+                            '<span><input class="form-control" type="text" id="{0}_c_custom_end" name="end" {1}></span>'.format(item.id, inputWidth ? "style='width:{0}'".format(inputWidth) : "");
                     }
                     strHTML += '</div></span>';
                     strHTML += '<span class="btn_filter_sure" data-id="{0}">确定</span></div>'.format(i);
@@ -416,14 +431,20 @@ $.extend(String.prototype, {
 
             //分类型自定义控件构建
             function _buildCustomFilter(i, item) {
-                var itemType = item.type ? item.type : 'number';
-                switch (itemType) {
-                    case "date":
-                        _dateFilterBuild(i, item);
-                        break;
-
-                    default:
-                        break;
+                if (item.custom) {
+                    //如果存在自定义构建控件，则调用自定义构建方法
+                    if (typeof(item.custom.buildFilter) == "function") {
+                        item.custom.buildFilter($('#{0}_c_custom'.format(item.id)), '#{0}_c_custom_start'.format(item.id), '#{0}_c_custom_end'.format(item.id));
+                    } else {
+                        var itemType = item.type ? item.type : 'number';
+                        switch (itemType) {
+                            case "date":
+                                _dateFilterBuild(i, item);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
             }
 
