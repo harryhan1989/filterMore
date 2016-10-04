@@ -2,6 +2,8 @@
  * 功能：    拓展String类型方法，添加常用功能
  * 创建人：  焰尾迭
  * 创建时间：2015-11-18
+ * 最后修改人：  HARRY HAN
+ * 最后修改时间：  2016-10-04
  */
 $.extend(String.prototype, {
     /*
@@ -34,13 +36,6 @@ $.extend(String.prototype, {
     }
 });
 
-/*!
- @Name：fiterMore v1.0 互联网风格筛选条件插件
- @Author：焰尾迭
- @Site：http://yanwei.cnblogs.com
- @github: http://aui.github.com/fiterMore
- @License：LGPL
- */
 (function($) {
     $.fn.extend({
         /*
@@ -139,7 +134,6 @@ $.extend(String.prototype, {
                     item.srcID = i;
                     item.id = "{0}{1}".format(ID_STUFF, i);
                 }
-
 
                 //2.值域 文本域 绑定字段
                 if (item.valueField || item.textField) {
@@ -305,8 +299,9 @@ $.extend(String.prototype, {
              * 参数：    当前项元素
              * 返回值：  当前项数据
              * 创建人：  杜冬军
-             * 最后修改人：  HARRY HAN
              * 创建时间：2015-12-21
+             * 最后修改人：  HARRY HAN
+             * 最后修改时间：  2016-10-04
              */
             function _createCtrl() {
                 var strHTML = "";
