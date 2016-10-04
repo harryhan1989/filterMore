@@ -72,7 +72,7 @@ $.extend(String.prototype, {
                                  "defaults": ['0'], //默认选中值，没有则选中全部
                                  //自定义
                                  "custom": {
-                                     "isRange": true, //是否区间 默认为true
+                                     "isRange": false, //是否区间 默认为false
                                      "inputWidth": 110, //设置自定义文本框的宽度，默认是110px
                                      "buildFilter": function ($grouped,$start, $end) { },
                                      "event": function (start, end) { }
@@ -111,7 +111,7 @@ $.extend(String.prototype, {
             };
 
             var defaultCustom = {
-                "isRange": true, //是否区间 默认为true
+                "isRange": false, //是否区间 默认为false
                 "inputWidth": 110, //设置自定义文本框的宽度，默认是110px 
             };
 
@@ -167,7 +167,7 @@ $.extend(String.prototype, {
 
                 //覆盖custom 默认值
                 if (item.custom) {
-                    item.custom = $.extend(defaultCustom, item.custom);
+                    item.custom = $.extend({}, defaultCustom, item.custom);
                 }
 
                 //4.是否多选处理,默认为单选
