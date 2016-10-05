@@ -161,3 +161,7 @@
     color: #fff;
     background-color: #1AB394;
 }
+
+.filter_btn .search {
+    float: right;
+}

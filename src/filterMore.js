@@ -90,7 +90,7 @@ $.extend(String.prototype, {
             var ID_STUFF = "searchitem_";
 
             var searchCtl = this;
-            var filterBtn = $('<div class="filter_btn"><span class="expand">展开条件</span></div>');
+
 
             var defaults = {
                 //展开更多条件回调事件
@@ -117,6 +117,10 @@ $.extend(String.prototype, {
 
             //查询控件参数
             var settings = $.extend(defaults, options);
+
+            //判断是否选择即搜索，是则添加手动触发搜索按钮
+            var filterBtn = settings.searchOnSelect ? $('<div class="filter_btn"><span class="expand">展开条件</span></div>') :
+                $('<div class="filter_btn"><span class="expand">展开条件</span><span class="search">搜索</span></div>');
 
             //处理数据
             if (isNaN(settings.expandRow) || settings.expandRow < 1) {
@@ -255,13 +259,25 @@ $.extend(String.prototype, {
             //更多条件展开收缩
             filterBtn.find('span').on("click", function() {
                 var state = true;
-                if ($(this).hasClass('expand')) {
-                    $(this).text('收缩条件').removeClass('expand');
-                    searchCtl.css({ 'height': 'auto' });
+                if ($(this).hasClass('search')) {
+                    var isTrue = true;
+                    $(settings.searchBoxs).each(function(i, item) {
+                        isTrue = _filterCustomSure(item);
+                        if (!isTrue) return false;
+                    });
+                    //触发查询事件
+                    if (isTrue && typeof(settings.search) == "function") {
+                        settings.search(_getParamList());
+                    }
                 } else {
-                    $(this).text('展开条件').addClass('expand');
-                    searchCtl.css({ 'height': _expandHeight });
-                    state = false;
+                    if ($(this).hasClass('expand')) {
+                        $(this).text('收缩条件').removeClass('expand');
+                        searchCtl.css({ 'height': 'auto' });
+                    } else {
+                        $(this).text('展开条件').addClass('expand');
+                        searchCtl.css({ 'height': _expandHeight });
+                        state = false;
+                    }
                 }
                 if (typeof(settings.expandEvent) == "function") {
                     settings.expandEvent(state);
@@ -272,33 +288,14 @@ $.extend(String.prototype, {
             searchCtl.on("click", '.filter_custom .btn_filter_sure', function() {
                 var index = $(this).attr("data-id");
                 var item = settings.searchBoxs[index];
-
-                var start = $("#{0}_c_custom_start".format(item.id)).val();
-
-                var end;
-                if (item.custom.isRange) {
-                    end = $("#{0}_c_custom_end".format(item.id)).val();
-                }
-
-                //自定义条件搜索按钮点击触发回调事件,用于用于校验输入数据是否正确
-                if (typeof(item.custom.event) == "function") {
-                    if (!item.custom.event(start, end)) {
-                        return;
-                    }
-                }
                 //清空当前项其它选择条件
                 $(this).closest(".filter_custom").siblings('.filter_option').find('span').removeClass('selected');
                 item.selected = [];
-
-
-                item.customSelectd[0] = start;
-
-                if (item.custom.isRange) {
-                    item.customSelectd[1] = end;
-                }
-
+                //赋值自定义条件
+                var isTrue = _filterCustomSure(item);
+                if (!isTrue) return isTrue;
                 //触发查询事件
-                if (typeof(settings.search) == "function") {
+                if (typeof(settings.search) == "function" && settings.searchOnSelect) {
                     settings.search(_getParamList());
                 }
             });
@@ -342,6 +339,29 @@ $.extend(String.prototype, {
                 if (settings.expandRow < settings.searchBoxs.length) {
                     searchCtl.after(filterBtn);
                 }
+            }
+
+            function _filterCustomSure(item) {
+                if (item.custom) {
+                    var start = $("#{0}_c_custom_start".format(item.id)).val();
+                    var end;
+                    if (item.custom.isRange) {
+                        end = $("#{0}_c_custom_end".format(item.id)).val();
+                    }
+                    if (start != "" || end != "") {
+                        //自定义条件搜索按钮点击触发回调事件,用于用于校验输入数据是否正确
+                        if (typeof(item.custom.event) == "function") {
+                            if (!item.custom.event(start, end)) {
+                                return false;
+                            }
+                        }
+                        item.customSelectd[0] = start;
+                        if (item.custom.isRange) {
+                            item.customSelectd[1] = end;
+                        }
+                    }
+                }
+                return true;
             }
 
             //获取自定义查询框宽度
