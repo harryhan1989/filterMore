@@ -49,8 +49,10 @@ $.extend(String.prototype, {
                              "searchBoxs": [
                              {
                                  "id": "xx",
+                                 "title": "时间范围",
                                  "isMultiple": false, //是否多选
-                                 "type": "date", //自定义类型:date（依赖bootstrao-datepicker,需提前引入相关库）,number,custom; by default:custom
+                                 "tip":"模糊", //自定义tip, 为空时则默认根据isMultiple判断显示 单选/多选
+                                 "type": "date", //自定义类型:date（依赖bootstrao-datepicker,需提前引入相关库）,number,text; by default:text
                                  "typeMoreConf":{ 
                                     //for date默认配置：
                                         //format: 'yyyy-mm-dd',
@@ -64,11 +66,10 @@ $.extend(String.prototype, {
                                     //for number默认配置
                                     
                                  }, //optional,对应类型更多配置，例如日期类型：type:date,日期依赖bootstrao-datepicker，在此配置次控件的扩展设置
-                                 "title": "时间范围",
+                                 "data": [{value:1,text:'语文'},{value:2,text:'数学'}],  //选项数据，为空且自定义选项"custom"不为空则自定义控件居左显示
                                  "valueField":"value", //选项json 键字段名称 默认为value
                                  "textField":"text",   //选项json 值字段名称 默认为text
-                                 "data": [{value:1,text:'语文'},{value:2,text:'数学'}],  //选项数据
-                                 "isShowAll": false,//是否显示全部
+                                 "isShowAll": false,//是否显示“全部”按钮
                                  "defaults": ['0'], //默认选中值，没有则选中全部
                                  //自定义
                                  "custom": {
@@ -317,7 +318,7 @@ $.extend(String.prototype, {
                     strHTML += ('<div class="searchbox-item" {0} data-id="{1}" id="{2}">'.format((i + 1) == settings.searchBoxs.length ? 'style="border: 0"' : "", i, item.id) +
                         '<div class="l" id="{1}_l">{0}<i></i></div>'.format(item.title, item.id) +
                         '<div class="c" id="{0}_c">'.format(item.id) +
-                        '<div class="control-type">({0})</div><div class="filter_option" style="padding-right:{1}px;">'.format(item.isMultiple ? "多选" : "单选", _getCustomDivWidth(item) + 20) + _createOptions(item) +
+                        '<div class="control-type">({0})</div><div class="filter_option" style="padding-right:{1}px;">'.format(item.tip ? item.tip : item.isMultiple ? "多选" : "单选", _getCustomDivWidth(item) + 20) + _createOptions(item) +
                         '</div>' + _createCustomFilter(i, item) +
                         '</div>' +
                         '<a href="javascript:;" class="r" id="{0}_r"><span class="text">展开</span></a>'.format(item.id) +
@@ -404,7 +405,7 @@ $.extend(String.prototype, {
             function _createOptions(item) {
                 //创建全部
                 var strHTML = "";
-                if (item.isMultiple || (!item.isMultiple && item.isShowAll)) {
+                if ((item.isMultiple || (!item.isMultiple && item.isShowAll)) && item.data) {
                     strHTML = '<span title="全部" class="option_all {0}">全部</span>'.format((!item.defaults || item.defaults.length == 0) ? "selected" : "");
                 }
                 //是否设置了回调事件,r如果设置了回调事件 ，则只输出前10项
@@ -433,7 +434,8 @@ $.extend(String.prototype, {
             function _createCustomFilter(i, item) {
                 if (item.custom) {
                     var inputWidth = item.custom.inputWidth + 'px';
-                    var strHTML = '<div class="filter_custom" style="width:{0}px;"><span>自定义</span>'.format(_getCustomDivWidth(item));
+                    var strHTML = item.data ? '<div class="filter_custom right_80" style="width:{0}px;"><span>自定义</span>'.format(_getCustomDivWidth(item)) :
+                        '<div class="filter_custom marginleft_45" style="width:{0}px;">'.format(_getCustomDivWidth(item));
                     strHTML += '<span><div id="{0}_c_custom">'.format(item.id);
                     strHTML += '<span><input class="form-control" type="text" id="{0}_c_custom_start" name="start" style="width:{1};"></span>'.format(item.id, inputWidth);
                     if (item.custom.isRange) {

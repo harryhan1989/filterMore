@@ -173,7 +173,7 @@
             <tr>
                 <td>data</td>
                 <td>Array</td>
-                <td>选项数据,数据格式[{value:'1',text:'语文'},{value:'2',text:'数学'}]</td>
+                <td>选项数据,数据格式[{value:'1',text:'语文'},{value:'2',text:'数学'}]，选项数据为空且自定义选项"custom"不为空则自定义控件居左显示</td>
                 <td>null</td>
                 <td>必须</td>
             </tr>
@@ -185,9 +185,23 @@
                 <td>常用</td>
             </tr>
             <tr>
+                <td>tip</td>
+                <td>string</td>
+                <td>名称后面的提示，为空时则默认根据isMultiple判断显示 单选/多选</td>
+                <td>null</td>
+                <td>不常用常用</td>
+            </tr>
+            <tr>
                 <td>type</td>
                 <td>string</td>
-                <td>存在自定义日期区间时需设定 值可为 datetime(年月日时分秒) | date(年月日)</td>
+                <td>自定义类型（date/number/text），日期控件使用bootstrao-datepicker，必须先引入相关js库</td>
+                <td>null</td>
+                <td>常用</td>
+            </tr>
+            <tr>
+                <td>typeMoreConf</td>
+                <td>object</td>
+                <td>自定义控件的扩展属性配置</td>
                 <td>null</td>
                 <td>常用</td>
             </tr>
@@ -246,6 +260,20 @@
                 <td>boolean</td>
                 <td>是否区间,用于控制自定义输入框个数 为false一个输入框 true两个输入框</td>
                 <td>false</td>
+                <td>非必须</td>
+            </tr>
+            <tr>
+                <td>inputWidth</td>
+                <td>int</td>
+                <td>自定义控件宽度，默认110</td>
+                <td>110</td>
+                <td>非必须</td>
+            </tr>
+            <tr>
+                <td>buildFilter</td>
+                <td>int</td>
+                <td>自定义构建方法，例如构建成颜色选择器、自己喜欢的日期控件等</td>
+                <td>null</td>
                 <td>非必须</td>
             </tr>
             <tr>
@@ -440,6 +468,14 @@
                 "expandRow": 2,
                 //查询条件
                 "searchBoxs": [{
+                    "id": "name",
+                    "title": "名称",
+                    "tip": "模糊",
+                    "custom": {
+                        "isRange": false,
+                        "inputWidth": 210,
+                    }
+                }, {
                     "id": "Status_Basic",
                     "title": "任务状态",
                     "isMultiple": true,
