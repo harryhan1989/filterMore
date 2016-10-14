@@ -191,12 +191,6 @@ $.extend(String.prototype, {
             //生成查询控件HTML
             _createCtrl();
 
-            //回掉onload事件
-            if (settings.onload && typeof(settings.onload) == "function") {
-                settings.onload(searchCtl);
-            }
-
-
             ////////////////////////////////////////事件绑定////////////////////////////////////////
 
             //给选项添加了自定义事件 select 对外调用
@@ -753,7 +747,7 @@ $.extend(String.prototype, {
                 this.getParamList = _getParamList;
                 this.setValue = _setSearchValue;
                 this.isFiterMore = true;
-                this.search = _search();
+                this.search = _search;
             });
         },
         /*

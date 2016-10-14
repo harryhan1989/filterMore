@@ -45,7 +45,6 @@ $.extend(String.prototype, {
                              "searchOnSelect": false,  //点击选项时是否触发查询，默认为true
                              "expandRow": 2,  //展开条件数 默认为2
                              "expandEvent": function (state) {},//展开更多条件触发事件 参数：state  true表示展开  false 收缩
-                             "onload":function (fiterMore) {}, //控件加载后触发,传递settings对象
                              //筛选条件项
                              "searchBoxs": [
                              {
@@ -190,12 +189,6 @@ $.extend(String.prototype, {
 
             //生成查询控件HTML
             _createCtrl();
-
-            //回掉onload事件
-            if (settings.onload && typeof(settings.onload) == "function") {
-                settings.onload(searchCtl);
-            }
-
 
             ////////////////////////////////////////事件绑定////////////////////////////////////////
 
@@ -753,7 +746,7 @@ $.extend(String.prototype, {
                 this.getParamList = _getParamList;
                 this.setValue = _setSearchValue;
                 this.isFiterMore = true;
-                this.search = _search();
+                this.search = _search;
             });
         },
         /*

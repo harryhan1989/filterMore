@@ -142,13 +142,6 @@
                 <td>true</td>
                 <td>不常用</td>
             </tr>
-            <tr>
-                <td>onload</td>
-                <td>function</td>
-                <td>控件加载后触发,传递filterMore对象</td>
-                <td>null</td>
-                <td>常用</td>
-            </tr>
         </tbody>
     </table>
     <table class="table table-bordered" id="table_searchBoxsParamList">
@@ -480,10 +473,6 @@
                 },
                 //默认展开条件数
                 "expandRow": 2,
-                //onload
-                "onload": function(obj) {
-                    $(obj).search();
-                },
                 //查询条件
                 "searchBoxs": [{
                     "id": "name",
@@ -516,7 +505,7 @@
                     }]
                 }]
             };
-            $("#basic_searchbox").fiterMore(options);
+            $("#basic_searchbox").fiterMore(options).search();
         }
 
         //日期自定义
