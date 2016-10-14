@@ -142,6 +142,13 @@
                 <td>true</td>
                 <td>不常用</td>
             </tr>
+            <tr>
+                <td>onload</td>
+                <td>function</td>
+                <td>控件加载后触发,传递filterMore对象</td>
+                <td>null</td>
+                <td>常用</td>
+            </tr>
         </tbody>
     </table>
     <table class="table table-bordered" id="table_searchBoxsParamList">
@@ -308,6 +315,13 @@
                 </td>
             </tr>
             <tr>
+                <td>search</td>
+                <td>触发搜索</td>
+                <td>无</td>
+                <td>无</td>
+                <td></td>
+            </tr>
+            <tr>
                 <td>searchFunctionCall</td>
                 <td>searchBox对外提供的调用函数</td>
                 <td>{"setValue":[]} key为要调用的函数名称 value:为函数调用参数</td>
@@ -466,6 +480,10 @@
                 },
                 //默认展开条件数
                 "expandRow": 2,
+                //onload
+                "onload": function(obj) {
+                    $(obj).search();
+                },
                 //查询条件
                 "searchBoxs": [{
                     "id": "name",

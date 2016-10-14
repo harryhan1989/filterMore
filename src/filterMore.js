@@ -45,6 +45,7 @@ $.extend(String.prototype, {
                              "searchOnSelect": false,  //点击选项时是否触发查询，默认为true
                              "expandRow": 2,  //展开条件数 默认为2
                              "expandEvent": function (state) {},//展开更多条件触发事件 参数：state  true表示展开  false 收缩
+                             "onload":function (fiterMore) {}, //控件加载后触发,传递settings对象
                              //筛选条件项
                              "searchBoxs": [
                              {
@@ -190,6 +191,11 @@ $.extend(String.prototype, {
             //生成查询控件HTML
             _createCtrl();
 
+            //回掉onload事件
+            if (settings.onload && typeof(settings.onload) == "function") {
+                settings.onload(searchCtl);
+            }
+
 
             ////////////////////////////////////////事件绑定////////////////////////////////////////
 
@@ -261,15 +267,7 @@ $.extend(String.prototype, {
             filterBtn.find('span').on("click", function() {
                 var state = true;
                 if ($(this).hasClass('search')) {
-                    var isTrue = true;
-                    $(settings.searchBoxs).each(function(i, item) {
-                        isTrue = _filterCustomSure(item);
-                        if (!isTrue) return false;
-                    });
-                    //触发查询事件
-                    if (isTrue && typeof(settings.search) == "function") {
-                        settings.search(_getParamList());
-                    }
+                    _search();
                 } else {
                     if ($(this).hasClass('expand')) {
                         $(this).text('收缩条件').removeClass('expand');
@@ -342,6 +340,20 @@ $.extend(String.prototype, {
                 }
             }
 
+            //search
+            function _search() {
+                var isTrue = true;
+                $(settings.searchBoxs).each(function(i, item) {
+                    isTrue = _filterCustomSure(item);
+                    if (!isTrue) return false;
+                });
+                //触发查询事件
+                if (isTrue && typeof(settings.search) == "function") {
+                    settings.search(_getParamList());
+                }
+            }
+
+            //自定义控件校验
             function _filterCustomSure(item) {
                 if (item.custom) {
                     var start = $("#{0}_c_custom_start".format(item.id)).val();
@@ -741,6 +753,7 @@ $.extend(String.prototype, {
                 this.getParamList = _getParamList;
                 this.setValue = _setSearchValue;
                 this.isFiterMore = true;
+                this.search = _search();
             });
         },
         /*
@@ -754,6 +767,19 @@ $.extend(String.prototype, {
             var that = this[0];
             if (that.isFiterMore) {
                 return that.getParamList();
+            }
+        },
+        /*
+         * 功能：    触发搜索
+         * 参数：    无
+         * 返回值：  无
+         * 创建人：  HARRY HAN
+         * 创建时间：2015-12-24
+         */
+        search: function() {
+            var that = this[0];
+            if (that.isFiterMore) {
+                return that.search();
             }
         },
         /*
